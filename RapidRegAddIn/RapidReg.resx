@@ -121,7 +121,7 @@
   <data name="btn_Danpinbao.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        DwAACw8BkvkDpQAABhdJREFUeF7tnX9I3HUYxz+uHBJI9EewikG/GPuzMFhtc027Jkm/VllzG0ZsYQml
+        DgAACw4BQL7hQQAABhdJREFUeF7tnX9I3HUYxz+uHBJI9EewikG/GPuzMFhtc027Jkm/VllzG0ZsYQml
         lsGqkRsmZNHaipt/mFugmIFRyiDpx0a4Gdm5yDXTU3N6++5uTs/v5zuUVds+8cy7qc/nvHneeffcd88b
         Xn8J38/zPK+77+c85fsRgsPhcDgcDodjsyilUiYmJm43TfNuKkxOTi5XSi3Ftdo658+ff15K+bOU8oJl
         WYoiUsrfpZTFtpZjGMZNUsom3DxlpJTHJyYm7sC92CJSyi9xw8nA6Ojo0PDwcPJKMU0zw7KsBsuyeqWU
@@ -153,7 +153,7 @@
   <data name="btn_Price.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        DwAACw8BkvkDpQAACeNJREFUeF7tnflTFVcWx99UTWUy468zVVM18wdMqmYyP2R+mCzjqLjgkiKJjCgY
+        DgAACw4BQL7hQQAACeNJREFUeF7tnflTFVcWx99UTWUy468zVVM18wdMqmYyP2R+mCzjqLjgkiKJjCgY
         cMEyalAUN0wkLkQ2xQVIIm7BJaiIqEHUqBGBuBAIEjTqlMsoviCy9e0nmRkneqbO025un9s8GnhvbKfO
         qfr8YJ9zbnefb997e7lPPB42NjY2NjY2NjY2NjY2NjY2tmAZADynadowTdMShBCzNU0LB4DnbeKe1zRt
         BMa4NO45XddfE0LMxXPBcwKAn9E4r9f7CyHEaCHEHIzz+XxhmNvXuKBZZ2fnb4QQ6bqut+m6DgRNCJHr
@@ -201,7 +201,7 @@
   <data name="btn_Quick.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        DwAACw8BkvkDpQAAECdJREFUeF7tXWlwFMcVnpAQJyGkErtIKodT+eFUqlLlEMfEVAAfwhw+OIQQRhAh
+        DgAACw4BQL7hQQAAECdJREFUeF7tXWlwFMcVnpAQJyGkErtIKodT+eFUqlLlEMfEVAAfwhw+OIQQRhAh
         fHIYY8RhjAFzgwAbITACHwKMAQMW5gqHEEgIJIsAQhJQCMvmtIBdpN3VdAuwHdt06ht2Vr1vZld7anfl
         fVVfrXaO12/et3281z0tRYlLXOISl7jEJS5xacnCOX+IMbaJMXaFMfY/5+dGzvmD9Nq4hFGEEK0ZYys4
         58ITGGPZuI7eG5cQixDih4yxDZQAM1it1p1RT4oQ4kcNDQ3dGGPzOOf5nPNLnHPGGLvFGKtjjJ3hnOdx

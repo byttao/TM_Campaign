@@ -1,17 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Excel;
 using RapidRegAddIn.Utilities;
-using Excel = Microsoft.Office.Interop.Excel;
+using Application = Microsoft.Office.Interop.Excel.Application;
 
 namespace RapidRegAddIn.ActionHandlers
 {
-    public static class DanPinbao_Factory
+    public class DanPinbao_Factory
     {
-        private static string _folderPath = "";
+        private string _folderPath = "";
 
-        public static void CreateParams(string path)
+        public void CreateParams(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -40,33 +42,52 @@ namespace RapidRegAddIn.ActionHandlers
         /// </summary>
         /// <param name="sh">要处理工作表</param>
         /// <param name="columnName">要处理的列名</param>
-        private static void FilterAndDeleteRowsWithBlankValue(Excel.Worksheet sh, string columnName)
+        private void FilterAndDeleteRowsWithBlankValue(Worksheet sh, string columnName)
         {
-            Excel.Range usedRange = sh.UsedRange;
-            Excel.Range columnToFilter = null;
-
+            Range usedRange = sh.UsedRange;
+            Range columnToFilter = null;
+            Range productFilter = null;
+            int productColIndex = -1;
             // 查找指定的列
-            foreach (Excel.Range cell in usedRange.Rows[1].Cells)
+            foreach (Range cell in usedRange.Rows[1].Cells)
             {
                 if (cell.Value2.ToString() == columnName)
                 {
                     columnToFilter = sh.Columns[cell.Column];
-                    break;
+                }
+                else if (cell.Value2.ToString() == "商品名称")
+                {
+                    productColIndex = cell.Column;
                 }
             }
 
-            if (columnToFilter != null)
+            if (productColIndex != -1 && columnToFilter != null)
             {
                 // 清除筛选
                 sh.AutoFilterMode = false;
                 //开启筛选
                 sh.Rows["1:1"].AutoFilter();
-                // 启用筛选并筛选出空白值的行
-                columnToFilter.SpecialCells(Excel.XlCellType.xlCellTypeBlanks).EntireRow.Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
+
+                try
+                {
+                    // 开启筛选，并筛选出“商品已删除”
+                    sh.Rows[1].AutoFilter(productColIndex, "商品已删除");
+                    // 删除筛选结果（可见行，除表头）
+                    Range visibleRows = usedRange.Offset[1, 0].Resize[usedRange.Rows.Count - 1].SpecialCells(XlCellType.xlCellTypeVisible);
+                    visibleRows.EntireRow.Delete();
+                }
+                catch (Exception)
+                {
+                }
+
+                // 关闭筛选
+                sh.AutoFilterMode = false;
+                //开启筛选
+                sh.Rows["1:1"].AutoFilter();
 
                 //分类转为数值
-                columnToFilter.TextToColumns(Comma: false, ConsecutiveDelimiter: false, DataType: Excel.XlTextParsingType.xlDelimited, Destination: columnToFilter, Other: false,
-                    Semicolon: false, Space: false, Tab: false, TextQualifier: Excel.XlTextQualifier.xlTextQualifierNone);
+                columnToFilter.TextToColumns(Comma: false, ConsecutiveDelimiter: false, DataType: XlTextParsingType.xlDelimited, Destination: columnToFilter, Other: false,
+                    Semicolon: false, Space: false, Tab: false, TextQualifier: XlTextQualifier.xlTextQualifierNone);
                 // 关闭筛选
                 //_sh.AutoFilterMode = false;
             }
@@ -77,31 +98,31 @@ namespace RapidRegAddIn.ActionHandlers
             }
         }
 
-        private static void CreatePivotTable(Excel.Workbook wb, string dataSourceSheetName, string pivotTableSheetName)
+        private void CreatePivotTable(Workbook wb, string dataSourceSheetName, string pivotTableSheetName)
         {
-            Excel.Worksheet sh = wb.Sheets[dataSourceSheetName];
+            Worksheet sh = wb.Sheets[dataSourceSheetName];
             // 定义数据透视表的数据源范围
-            Excel.Range sourceData = sh.Range["J:O"];
+            Range sourceData = sh.Range["J:O"];
 
             // 添加一个新的工作表用于放置透视表
-            Excel.Worksheet pivotSheet = wb.Worksheets.Add();
+            Worksheet pivotSheet = wb.Worksheets.Add();
             pivotSheet.Name = pivotTableSheetName;
 
             // 定义透视表的目标位置
-            Excel.Range pivotDestination = pivotSheet.Cells[1, 1];
+            Range pivotDestination = pivotSheet.Cells[1, 1];
 
             // 创建 PivotTable
-            Excel.PivotTable pivotTable = pivotSheet.PivotTableWizard(Excel.XlPivotTableSourceType.xlDatabase,
+            PivotTable pivotTable = pivotSheet.PivotTableWizard(XlPivotTableSourceType.xlDatabase,
                 sourceData,
                 pivotDestination,
                 "PivotTable");
 
             // 设置透视表字段
 
-            pivotTable.PivotFields("商品ID").Orientation = Excel.XlPivotFieldOrientation.xlRowField;
-            pivotTable.AddDataField(pivotTable.PivotFields("优惠后价格"), "最小值项:优惠后价格", Excel.XlConsolidationFunction.xlMin);
-            pivotTable.AddDataField(pivotTable.PivotFields("优惠后价格"), "最大值项:优惠后价格", Excel.XlConsolidationFunction.xlMax);
-            pivotTable.DataPivotField.Orientation = Excel.XlPivotFieldOrientation.xlColumnField;
+            pivotTable.PivotFields("商品ID").Orientation = XlPivotFieldOrientation.xlRowField;
+            pivotTable.AddDataField(pivotTable.PivotFields("优惠后价格"), "最小值项:优惠后价格", XlConsolidationFunction.xlMin);
+            pivotTable.AddDataField(pivotTable.PivotFields("优惠后价格"), "最大值项:优惠后价格", XlConsolidationFunction.xlMax);
+            pivotTable.DataPivotField.Orientation = XlPivotFieldOrientation.xlColumnField;
             pivotTable.PivotFields("商品ID").Position = 1;
             pivotTable.DataFields["最小值项:优惠后价格"].NumberFormat = "#,##0.00";
             pivotTable.DataFields["最大值项:优惠后价格"].NumberFormat = "#,##0.00";
@@ -113,24 +134,38 @@ namespace RapidRegAddIn.ActionHandlers
         /// <summary>
         /// 单品宝处理
         /// </summary>
-        private static void CreateProductSKUFile()
+        private void CreateProductSKUFile()
         {
-            Excel.Application excelApp = Globals.ThisAddIn.Application;
+            Application excelApp = Globals.ThisAddIn.Application;
 
             DirectoryInfo directoryInfo = new DirectoryInfo(_folderPath + "\\单品宝");
             FileInfo[] files = directoryInfo.GetFiles("单品宝_*.xlsx");
 
             if (files.Length > 0)
             {
-                Excel.Workbook productLevelWb = excelApp.Workbooks.Add();
-                Excel.Workbook skuLevelWb = excelApp.Workbooks.Add();
+                Workbook productLevelWb = excelApp.Workbooks.Add();
+                Workbook skuLevelWb = excelApp.Workbooks.Add();
+                Globals.ThisAddIn.Application.DisplayAlerts = false;
                 foreach (FileInfo file in files)
                 {
-                    Excel.Workbook originalWb = excelApp.Workbooks.Open(file.FullName);
-                    Excel.Worksheet originalSh = originalWb.ActiveSheet;
+                    Workbook originalWb = excelApp.Workbooks.Open(file.FullName);
+                    Worksheet originalSh = originalWb.ActiveSheet;
+                    originalWb.Activate();
+                    //判断是否为新版单品宝
+                    // Variable name suggestion for determining if the sheet is an old version of 单品宝
+                    var isOldVersion = originalSh.Range["D1"].Value2.ToString() == "优惠类型";
+
+                    if (!isOldVersion)
+                    {
+                        // 在D列插入一列
+                        originalSh.Columns["D"].Insert();
+                        // 在D1单元格写入"优惠类型"
+                        originalSh.Range["D1"].Value2 = "优惠类型";
+                    }
+
                     //判断是商品级还是SKU级
                     var masterWorkbook = originalSh.Range["E2"].Value2.ToString() == "商品" ? productLevelWb : skuLevelWb;
-                    Excel.Worksheet existingSheet = masterWorkbook.Sheets.Cast<Excel.Worksheet>().FirstOrDefault(s => s.Name == originalSh.Name);
+                    Worksheet existingSheet = masterWorkbook.Sheets.Cast<Worksheet>().FirstOrDefault(s => s.Name == originalSh.Name);
 
                     // 如果不存在，则复制工作表到主工作簿
                     if (existingSheet == null)
@@ -140,19 +175,23 @@ namespace RapidRegAddIn.ActionHandlers
                     else
                     {
                         // 如果存在，则将数据从当前工作表复制到已存在的工作表中
-                        Excel.Range sourceRange = originalSh.UsedRange;
+                        Range sourceRange = originalSh.UsedRange;
                         sourceRange = sourceRange.Offset[1, 0].Resize[sourceRange.Rows.Count - 1, sourceRange.Columns.Count];
-                        Excel.Range destinationRange = existingSheet.Cells[existingSheet.UsedRange.Rows.Count + 1, 1];
+                        Range destinationRange = existingSheet.Cells[existingSheet.UsedRange.Rows.Count + 1, 1];
                         sourceRange.Copy(destinationRange);
+                        
+                        Foundation.ReleaseObject(sourceRange);
                     }
-
+                    
+                    Foundation.ReleaseObject(originalSh);
+                    //originalWb.Close(SaveChanges:false);
                     originalWb.Close(false);
                     Foundation.ReleaseObject(originalWb);
                 }
 
                 if (productLevelWb.Sheets.Count == 1)
                 {
-                    Excel.Worksheet sh = productLevelWb.Sheets.Add();
+                    Worksheet sh = productLevelWb.Sheets.Add();
                     sh.Name = "0";
                 }
                 else
@@ -162,23 +201,22 @@ namespace RapidRegAddIn.ActionHandlers
 
                 if (skuLevelWb.Sheets.Count == 1)
                 {
-                    Excel.Worksheet sh = skuLevelWb.Sheets.Add();
+                    Worksheet sh = skuLevelWb.Sheets.Add();
                     sh.Name = "0";
                 }
                 else
                 {
                     FilterAndDeleteRowsWithBlankValue(skuLevelWb.Sheets["0"], "优惠后价格");
 
-                    Excel.Worksheet sh = skuLevelWb.Sheets["0"];
-                    int iRow = sh.Range["A1000000"].End[Excel.XlDirection.xlUp].Row;
+                    Worksheet sh = skuLevelWb.Sheets["0"];
+                    int iRow = sh.Range["A1000000"].End[XlDirection.xlUp].Row;
                     sh.Range[$"Q2:Q{iRow}"].FormulaR1C1 = Foundation.FillExcelWithJSONRules(_folderPath, "SKU级单品宝");
 
                     CreatePivotTable(skuLevelWb, "0", "Sheet3");
                 }
 
-                Globals.ThisAddIn.Application.DisplayAlerts = false;
-                productLevelWb.SaveAs(_folderPath + "\\单品宝\\单品宝-商品级.xlsx", Excel.XlFileFormat.xlOpenXMLWorkbook);
-                skuLevelWb.SaveAs(_folderPath + "\\单品宝\\单品宝-SKU级.xlsx", Excel.XlFileFormat.xlOpenXMLWorkbook);
+                productLevelWb.SaveAs(_folderPath + "\\单品宝\\单品宝-商品级.xlsx", XlFileFormat.xlOpenXMLWorkbook);
+                skuLevelWb.SaveAs(_folderPath + "\\单品宝\\单品宝-SKU级.xlsx", XlFileFormat.xlOpenXMLWorkbook);
                 Globals.ThisAddIn.Application.DisplayAlerts = true;
             }
         }

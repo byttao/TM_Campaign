@@ -43,7 +43,8 @@ namespace RapidRegAddIn
 
                 if (txtFolderPath != "")
                 {
-                    DanPinbao_Factory.CreateParams(txtFolderPath);
+                    DanPinbao_Factory danPinbao=new DanPinbao_Factory();
+                    danPinbao.CreateParams(txtFolderPath);
                 }
                 
             }

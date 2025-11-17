@@ -49,6 +49,7 @@ namespace RapidRegAddIn
             this.button1 = this.Factory.CreateRibbonButton();
             this.group2 = this.Factory.CreateRibbonGroup();
             this.btn_Quick = this.Factory.CreateRibbonButton();
+            this.label2 = this.Factory.CreateRibbonLabel();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.box1.SuspendLayout();
@@ -127,6 +128,7 @@ namespace RapidRegAddIn
             // group2
             // 
             this.group2.Items.Add(this.btn_Quick);
+            this.group2.Items.Add(this.label2);
             this.group2.Label = "快速处理";
             this.group2.Name = "group2";
             // 
@@ -138,6 +140,11 @@ namespace RapidRegAddIn
             this.btn_Quick.Name = "btn_Quick";
             this.btn_Quick.ShowImage = true;
             this.btn_Quick.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btn_Quick_Click);
+            // 
+            // label2
+            // 
+            this.label2.Label = "当前版本：20251117";
+            this.label2.Name = "label2";
             // 
             // RapidReg
             // 
@@ -171,6 +178,7 @@ namespace RapidRegAddIn
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btn_Price;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group2;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btn_Quick;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel label2;
     }
 
     partial class ThisRibbonCollection
